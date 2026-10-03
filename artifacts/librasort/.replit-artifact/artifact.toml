@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "LibraSort"
+description = "A secure library management application for organizing books and learning practical sorting, grouping, searching, and shelf-allocation algorithms through real data."
+version = "1.0.0"
+id = "artifacts/librasort"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 26056
+
+[services.development]
+run = "pnpm --filter @workspace/librasort run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/librasort", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/librasort/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "26056"
+BASE_PATH = "/"

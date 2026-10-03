@@ -1,15 +1,21 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
+  # Do not change the title; generated import paths depend on it.
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Secure personal library and arrangement optimization API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: library
+    description: User-owned library records and dashboard
+  - name: profile
+    description: Authenticated account profile
+  - name: optimization
+    description: Deterministic library arrangement algorithms
 paths:
   /healthz:
     get:
@@ -24,6 +30,230 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [library]
+      summary: Get the authenticated user's library summary
+      responses:
+        "200":
+          description: Database-backed dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+        "401":
+          description: Authentication required
+  /profile:
+    get:
+      operationId: getProfile
+      tags: [profile]
+      summary: Get or create the authenticated user's local profile
+      responses:
+        "200":
+          description: Account profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "401":
+          description: Authentication required
+    patch:
+      operationId: updateProfile
+      tags: [profile]
+      summary: Update the authenticated user's profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileUpdate"
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "400":
+          description: Invalid profile
+        "401":
+          description: Authentication required
+  /books:
+    get:
+      operationId: getBooks
+      tags: [library]
+      summary: Search, filter, sort, and paginate the authenticated user's books
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: category
+          schema: { type: string }
+        - in: query
+          name: shelf
+          schema: { type: string }
+        - in: query
+          name: status
+          schema: { $ref: "#/components/schemas/BookStatus" }
+        - in: query
+          name: sort
+          schema: { $ref: "#/components/schemas/BookSort" }
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1, default: 1 }
+        - in: query
+          name: pageSize
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+      responses:
+        "200":
+          description: Page of owned books and available filter values
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookPage"
+        "401":
+          description: Authentication required
+    post:
+      operationId: createBook
+      tags: [library]
+      summary: Add a book to the authenticated user's library
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookInput"
+      responses:
+        "201":
+          description: Created book
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Book"
+        "400":
+          description: Invalid book
+        "401":
+          description: Authentication required
+  /books/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      operationId: getBook
+      tags: [library]
+      summary: Get one book owned by the authenticated user
+      responses:
+        "200":
+          description: Book details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Book"
+        "404":
+          description: Book not found
+        "401":
+          description: Authentication required
+    put:
+      operationId: updateBook
+      tags: [library]
+      summary: Replace the editable fields of one book owned by the authenticated user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookUpdate"
+      responses:
+        "200":
+          description: Updated book
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Book"
+        "400":
+          description: Invalid book
+        "404":
+          description: Book not found
+        "401":
+          description: Authentication required
+    delete:
+      operationId: deleteBook
+      tags: [library]
+      summary: Delete one book owned by the authenticated user
+      responses:
+        "204":
+          description: Book deleted
+        "404":
+          description: Book not found
+        "401":
+          description: Authentication required
+  /optimization:
+    post:
+      operationId: runOptimization
+      tags: [optimization]
+      summary: Sort and reassign the authenticated user's books
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OptimizationInput"
+      responses:
+        "200":
+          description: Persisted optimization and before/after snapshots
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Optimization"
+        "400":
+          description: Invalid optimization request
+        "401":
+          description: Authentication required
+  /optimization/history:
+    get:
+      operationId: getOptimizationHistory
+      tags: [optimization]
+      summary: List the authenticated user's prior optimization runs
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+      responses:
+        "200":
+          description: Prior optimization runs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Optimization"
+        "401":
+          description: Authentication required
+  /optimization/history/{id}:
+    get:
+      operationId: getOptimization
+      tags: [optimization]
+      summary: Get a prior optimization run owned by the authenticated user
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Prior optimization run
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Optimization"
+        "404":
+          description: Optimization not found
+        "401":
+          description: Authentication required
 components:
   schemas:
     HealthStatus:
@@ -33,4 +263,157 @@ components:
           type: string
       required:
         - status
+    BookStatus:
+      type: string
+      enum: [available, borrowed, reserved]
+    BookSort:
+      type: string
+      enum:
+        - title-asc
+        - title-desc
+        - author
+        - publication-year
+        - category
+        - shelf
+        - position
+    OptimizationCriteria:
+      type: string
+      enum: [category, author, title, publicationYear]
+    Book:
+      type: object
+      required: [id, title, author, category, publicationYear, shelf, position, status, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        author: { type: string }
+        isbn: { type: ["string", "null"] }
+        category: { type: string }
+        publicationYear: { type: ["integer", "null"] }
+        shelf: { type: string }
+        position: { type: integer }
+        status: { $ref: "#/components/schemas/BookStatus" }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    BookInput:
+      type: object
+      required: [title, author, category, shelf, position]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 240 }
+        author: { type: string, minLength: 1, maxLength: 180 }
+        isbn: { type: ["string", "null"], maxLength: 32 }
+        category: { type: string, minLength: 1, maxLength: 100 }
+        publicationYear: { type: ["integer", "null"], minimum: 0, maximum: 2100 }
+        shelf: { type: string, minLength: 1, maxLength: 60 }
+        position: { type: integer, minimum: 1 }
+        status: { $ref: "#/components/schemas/BookStatus" }
+    BookUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        title: { type: string, minLength: 1, maxLength: 240 }
+        author: { type: string, minLength: 1, maxLength: 180 }
+        isbn: { type: ["string", "null"], maxLength: 32 }
+        category: { type: string, minLength: 1, maxLength: 100 }
+        publicationYear: { type: ["integer", "null"], minimum: 0, maximum: 2100 }
+        shelf: { type: string, minLength: 1, maxLength: 60 }
+        position: { type: integer, minimum: 1 }
+        status: { $ref: "#/components/schemas/BookStatus" }
+    BookPage:
+      type: object
+      required: [items, total, page, pageSize, categories, shelves]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/Book" }
+        total: { type: integer }
+        page: { type: integer }
+        pageSize: { type: integer }
+        categories:
+          type: array
+          items: { type: string }
+        shelves:
+          type: array
+          items: { type: string }
+    CategoryCount:
+      type: object
+      required: [category, count]
+      properties:
+        category: { type: string }
+        count: { type: integer }
+    ShelfCount:
+      type: object
+      required: [shelf, count]
+      properties:
+        shelf: { type: string }
+        count: { type: integer }
+    DashboardSummary:
+      type: object
+      required: [totalBooks, categoryCount, shelfCount, categories, shelves, recentBooks, lastOptimization]
+      properties:
+        totalBooks: { type: integer }
+        categoryCount: { type: integer }
+        shelfCount: { type: integer }
+        categories:
+          type: array
+          items: { $ref: "#/components/schemas/CategoryCount" }
+        shelves:
+          type: array
+          items: { $ref: "#/components/schemas/ShelfCount" }
+        recentBooks:
+          type: array
+          items: { $ref: "#/components/schemas/Book" }
+        lastOptimization:
+          oneOf:
+            - $ref: "#/components/schemas/Optimization"
+            - type: "null"
+    UserProfile:
+      type: object
+      required: [id, name, email, profileImage, createdAt]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        email: { type: string }
+        profileImage: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+    ProfileUpdate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 160 }
+        profileImage: { type: ["string", "null"], maxLength: 2048 }
+    OptimizationInput:
+      type: object
+      required: [criteria]
+      properties:
+        criteria: { $ref: "#/components/schemas/OptimizationCriteria" }
+    ArrangementEntry:
+      type: object
+      required: [id, title, author, category, shelf, position]
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        author: { type: string }
+        category: { type: string }
+        shelf: { type: string }
+        position: { type: integer }
+    Optimization:
+      type: object
+      required: [id, criteria, algorithm, timeComplexity, spaceComplexity, booksProcessed, positionsChanged, operationsCount, executionTimeMs, beforeOrder, afterOrder, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        criteria: { $ref: "#/components/schemas/OptimizationCriteria" }
+        algorithm: { type: string }
+        timeComplexity: { type: string }
+        spaceComplexity: { type: string }
+        booksProcessed: { type: integer }
+        positionsChanged: { type: integer }
+        operationsCount: { type: integer }
+        executionTimeMs: { type: integer }
+        beforeOrder:
+          type: array
+          items: { $ref: "#/components/schemas/ArrangementEntry" }
+        afterOrder:
+          type: array
+          items: { $ref: "#/components/schemas/ArrangementEntry" }
+        createdAt: { type: string, format: date-time }
 

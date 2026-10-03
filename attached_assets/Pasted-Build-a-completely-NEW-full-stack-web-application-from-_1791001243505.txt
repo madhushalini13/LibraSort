@@ -1,0 +1,904 @@
+Build a completely NEW full-stack web application from absolute zero called:
+
+LIBRASORT
+"Smart Library Book Arrangement & Optimization System"
+
+IMPORTANT:
+This is a completely fresh project.
+
+DO NOT reuse, import, connect to, or reference any previous LibraSort project, GitHub repository, Netlify deployment, database, authentication provider, API keys, OAuth credentials, environment variables, codebase, or configuration.
+
+I want a genuinely new application with a new database, new authentication setup, new OAuth configuration, and a new deployment.
+
+Do NOT use Replit.
+Do NOT use Clerk unless absolutely required by the platform.
+Do NOT use fake authentication.
+Do NOT use fake statistics.
+Do NOT use fake users.
+Do NOT use hardcoded dashboard numbers pretending to be real.
+Do NOT create a static demo only.
+
+The application must actually work.
+
+==================================================
+1. PROJECT PURPOSE
+==================================================
+
+LibraSort is a smart library management and book arrangement system designed as an academic Data Structures & Algorithms project.
+
+The main purpose is to allow a library/user to:
+
+• Add books
+• Edit books
+• Delete books
+• Search books
+• Filter books
+• Sort books
+• Categorize books
+• View library statistics
+• Optimize the arrangement of books using a real DAA algorithm
+• Compare the library arrangement before and after optimization
+• Understand algorithm complexity
+• See useful optimization metrics
+
+The application should look like a real modern software product, not a basic college CRUD project.
+
+==================================================
+2. DESIGN / UI
+==================================================
+
+Create a premium, modern academic-tech interface.
+
+Design direction:
+
+• Dark navy / deep blue background
+• White and light-gray text
+• Blue/cyan accent colors
+• Clean cards
+• Subtle gradients
+• Professional typography
+• Smooth hover animations
+• Rounded corners
+• Proper spacing
+• Responsive design
+• Desktop + tablet + mobile support
+• Modern dashboard layout
+• Sidebar navigation on desktop
+• Mobile navigation on smaller screens
+
+The visual quality should feel similar to a modern SaaS dashboard.
+
+Do NOT make it look like a generic template.
+
+Brand:
+
+LIBRASORT
+
+Subtitle:
+
+Smart Library Book Arrangement & Optimization System
+
+Use a simple professional library/book-related logo or icon.
+
+==================================================
+3. AUTHENTICATION
+==================================================
+
+Implement REAL authentication.
+
+The user should be able to:
+
+• Create an account
+• Log in
+• Log out
+• Maintain a session
+• Access their own dashboard
+• Access their own library data
+
+Also implement:
+
+"Continue with Google"
+
+The Google login must use REAL OAuth.
+
+When the user clicks Continue with Google:
+
+• Open the real Google OAuth flow
+• Allow Google account selection
+• Authenticate the user
+• Return to LibraSort
+• Create/login the user
+• Maintain their session
+
+Do not create a fake Google button.
+
+Use the platform's recommended secure authentication system if available.
+
+Store users securely.
+
+Never expose passwords or secrets to the client.
+
+==================================================
+4. DATABASE
+==================================================
+
+Use a real PostgreSQL database or the platform's recommended production database.
+
+Create proper relational tables.
+
+Minimum tables:
+
+USERS
+
+Fields:
+• id
+• name
+• email
+• profile_image
+• created_at
+
+BOOKS
+
+Fields:
+• id
+• user_id
+• title
+• author
+• isbn
+• category
+• publication_year
+• shelf
+• position
+• status
+• created_at
+• updated_at
+
+OPTIMIZATIONS
+
+Fields:
+• id
+• user_id
+• optimization_type
+• books_processed
+• operations_count
+• execution_time
+• before_order
+• after_order
+• created_at
+
+Every book must belong to a user.
+
+Users must NEVER be able to access another user's books.
+
+Implement proper server-side authorization.
+
+==================================================
+5. LANDING PAGE
+==================================================
+
+Create a professional landing page.
+
+Hero:
+
+LIBRASORT
+
+Smart Library Book Arrangement & Optimization System
+
+Description:
+
+"Manage, organize and intelligently optimize your library using practical Data Structures & Algorithms."
+
+Buttons:
+
+• Get Started
+• Sign In
+
+Include sections for:
+
+• Smart Library Management
+• DAA-Powered Optimization
+• Search & Sorting
+• Analytics
+• Secure Personal Library
+
+Include a simple explanation of how LibraSort works:
+
+1. Add Books
+2. Organize Library
+3. Run Optimization
+4. Analyze Results
+
+==================================================
+6. LOGIN / SIGNUP
+==================================================
+
+Create polished authentication pages.
+
+Login:
+
+• Email
+• Password
+• Continue with Google
+• Login button
+• Forgot password if supported
+• Link to signup
+
+Signup:
+
+• Name
+• Email
+• Password
+• Confirm password
+• Continue with Google
+• Create account
+
+Show proper validation and useful error messages.
+
+==================================================
+7. DASHBOARD
+==================================================
+
+After login, redirect the user to:
+
+/dashboard
+
+Dashboard should display REAL database information.
+
+Cards:
+
+• Total Books
+• Categories
+• Shelves
+• Last Optimization
+
+Also display:
+
+Library Overview
+
+Recent Books
+
+Optimization Summary
+
+Quick Actions:
+
+• Add Book
+• View Library
+• Optimize Library
+
+IMPORTANT:
+
+All numbers must come from the database.
+
+Never hardcode fake statistics.
+
+If the user has no books yet, show:
+
+"Your library is empty"
+
+with an:
+
+"Add Your First Book"
+
+button.
+
+==================================================
+8. LIBRARY PAGE
+==================================================
+
+Route:
+
+/library
+
+Create a complete book management interface.
+
+Features:
+
+• Add book
+• Edit book
+• Delete book
+• Search
+• Filter
+• Sort
+• Pagination if needed
+
+Book fields:
+
+Title
+Author
+ISBN
+Category
+Publication Year
+Shelf
+Position
+Status
+
+Status options:
+
+• Available
+• Borrowed
+• Reserved
+
+Display books in a professional table/card layout.
+
+Search should work across:
+
+• Title
+• Author
+• ISBN
+• Category
+
+Filters:
+
+• Category
+• Shelf
+• Status
+
+Sorting:
+
+• Title A-Z
+• Title Z-A
+• Author
+• Publication Year
+• Category
+• Shelf
+• Position
+
+All operations must persist to the database.
+
+==================================================
+9. ADD BOOK
+==================================================
+
+Create a polished Add Book form.
+
+Validation:
+
+• Title required
+• Author required
+• Category required
+• ISBN validation where provided
+• Publication year validation
+• Shelf required
+• Position validation
+
+After adding:
+
+• Save to database
+• Show success message
+• Update dashboard statistics
+• Update library list
+
+==================================================
+10. BOOK DETAILS
+==================================================
+
+When a user selects a book, show a details view.
+
+Display:
+
+• Title
+• Author
+• ISBN
+• Category
+• Publication year
+• Shelf
+• Position
+• Status
+• Date added
+
+Provide:
+
+• Edit
+• Delete
+
+==================================================
+11. OPTIMIZATION PAGE
+==================================================
+
+Route:
+
+/optimization
+
+This is the CORE DAA feature.
+
+Create a professional optimization interface.
+
+Heading:
+
+"Library Optimization"
+
+Description:
+
+"Use Data Structures & Algorithms to determine a more organized arrangement for your books."
+
+Allow the user to select an optimization strategy.
+
+Implement a REAL algorithm.
+
+Use a practical algorithm such as:
+
+1. Sorting-based arrangement
+
+Sort books based on selected criteria:
+
+• Category
+• Author
+• Title
+• Publication Year
+
+Then assign optimized shelf/position ordering.
+
+You may combine:
+
+• Sorting
+• Greedy arrangement
+• Grouping
+
+The algorithm must actually process the user's books.
+
+DO NOT simply display a fake result.
+
+==================================================
+12. BEFORE / AFTER COMPARISON
+==================================================
+
+After optimization, show:
+
+BEFORE
+
+Current arrangement of books.
+
+AFTER
+
+Optimized arrangement.
+
+Example:
+
+Before:
+Random / existing shelf positions
+
+After:
+Category → Author → Title
+
+Display the books visually so the difference is obvious.
+
+Include:
+
+• Number of books processed
+• Number of positions changed
+• Number of operations
+• Execution time if measurable
+• Complexity
+
+==================================================
+13. ALGORITHM EXPLANATION
+==================================================
+
+Create an educational section explaining the algorithm.
+
+Example:
+
+Algorithm:
+Merge Sort / Quick Sort / appropriate sorting algorithm
+
+Time Complexity:
+O(n log n)
+
+Space Complexity:
+O(n)
+
+Explain in simple student-friendly language:
+
+"Each book is compared according to the selected sorting criteria. The algorithm reorganizes the collection into a structured order, reducing the effort required to locate books."
+
+The exact explanation must match the implemented algorithm.
+
+Do not claim an algorithm was used if it was not actually implemented.
+
+==================================================
+14. OPTIMIZATION METRICS
+==================================================
+
+After optimization show:
+
+• Books Processed
+• Positions Changed
+• Operations Performed
+• Execution Time
+• Before Arrangement
+• After Arrangement
+• Algorithm Used
+• Time Complexity
+• Space Complexity
+
+Create a visual comparison.
+
+Use charts only when the data is real.
+
+==================================================
+15. OPTIMIZATION HISTORY
+==================================================
+
+Store optimization runs in the database.
+
+Show:
+
+• Date
+• Algorithm
+• Books processed
+• Operations
+• Execution time
+
+Allow the user to open a previous optimization record.
+
+==================================================
+16. PROFILE
+==================================================
+
+Route:
+
+/profile
+
+Display:
+
+• Name
+• Email
+• Profile picture
+• Account creation date
+
+Allow the user to update their name/profile picture if supported.
+
+Include logout.
+
+==================================================
+17. ABOUT PAGE
+==================================================
+
+Explain:
+
+What is LibraSort?
+
+Why library organization matters.
+
+How Data Structures & Algorithms are used.
+
+Explain:
+
+• Searching
+• Sorting
+• Grouping
+• Optimization
+
+Include a section:
+
+"Built as a practical application of Data Structures & Algorithms."
+
+==================================================
+18. API
+==================================================
+
+Create proper backend APIs.
+
+Minimum:
+
+GET /api/healthz
+
+GET /api/dashboard
+
+GET /api/books
+
+POST /api/books
+
+GET /api/books/:id
+
+PUT /api/books/:id
+
+DELETE /api/books/:id
+
+POST /api/optimization
+
+GET /api/optimization/history
+
+All protected APIs must verify the authenticated user.
+
+Never trust user_id sent from the frontend.
+
+Get the authenticated user from the server-side session.
+
+==================================================
+19. SECURITY
+==================================================
+
+Implement:
+
+• Server-side authentication
+• Authorization
+• Input validation
+• SQL injection protection
+• Secure session handling
+• Environment variables for secrets
+• No secrets committed to source code
+• Proper API error handling
+
+Never expose:
+
+• Database passwords
+• OAuth secrets
+• API keys
+• Authentication secrets
+
+==================================================
+20. ERROR HANDLING
+==================================================
+
+Every major operation needs proper error handling.
+
+Examples:
+
+Database unavailable:
+
+"Unable to connect to the library database. Please try again."
+
+Invalid login:
+
+"Email or password is incorrect."
+
+Book creation failure:
+
+"Unable to add this book. Please check the information and try again."
+
+Optimization failure:
+
+"Optimization could not be completed. Please try again."
+
+Do not show raw stack traces to users.
+
+==================================================
+21. EMPTY STATES
+==================================================
+
+Do not use fake data to make the interface look populated.
+
+If the user has no books:
+
+Show a beautiful empty state.
+
+Example:
+
+"No books yet"
+
+"Start building your digital library by adding your first book."
+
+Button:
+
+"Add Book"
+
+Same principle applies to optimization history and other pages.
+
+==================================================
+22. RESPONSIVENESS
+==================================================
+
+The application must work properly on:
+
+• MacBook
+• Windows laptop
+• Tablet
+• Mobile
+
+No horizontal overflow.
+
+No broken layouts.
+
+Navigation should become mobile-friendly.
+
+==================================================
+23. PERFORMANCE
+==================================================
+
+Use efficient database queries.
+
+Avoid unnecessary API requests.
+
+Use pagination when appropriate.
+
+Use debounced search if needed.
+
+Keep frontend components reusable.
+
+==================================================
+24. CODE QUALITY
+==================================================
+
+Structure the project professionally.
+
+Use reusable components.
+
+Separate:
+
+• UI
+• API
+• Database
+• Authentication
+• Algorithms
+• Utilities
+
+Do not put the entire application into one huge file.
+
+Use clear naming conventions.
+
+Add comments around the important DAA logic.
+
+==================================================
+25. DAA IMPLEMENTATION REQUIREMENT
+==================================================
+
+This is extremely important.
+
+The project is being evaluated as a Data Structures & Algorithms project.
+
+The algorithm must be REAL and executable.
+
+At minimum implement:
+
+• Sorting algorithm
+• Searching
+• Data grouping/organization
+
+Recommended architecture:
+
+Book array
+↓
+Filtering
+↓
+Grouping by category
+↓
+Sorting within groups
+↓
+Shelf assignment
+↓
+Optimized arrangement
+
+Track meaningful algorithm metrics.
+
+Explain why the algorithm is appropriate.
+
+==================================================
+26. NO FAKE FEATURES
+==================================================
+
+Absolutely do NOT create:
+
+• Fake AI responses
+• Fake users
+• Fake statistics
+• Fake optimization results
+• Fake login
+• Fake Google authentication
+• Fake database
+• Fake API responses
+• Fake charts
+
+Everything displayed as real application data must originate from the actual application/database.
+
+==================================================
+27. AI USAGE
+==================================================
+
+AI is NOT required for the core optimization algorithm.
+
+Do not add AI merely for decoration.
+
+If an optional AI feature is added later, keep it separate from the core DAA logic.
+
+The core optimization must remain deterministic and explainable.
+
+==================================================
+28. FINAL QUALITY CHECK
+==================================================
+
+Before considering the project complete, test:
+
+1. New user signup
+2. Login
+3. Google login
+4. Logout
+5. Session persistence
+6. Dashboard
+7. Add book
+8. Edit book
+9. Delete book
+10. Search
+11. Filtering
+12. Sorting
+13. Optimization
+14. Before/after comparison
+15. Optimization history
+16. Profile
+17. Mobile layout
+18. Unauthorized API access
+19. Empty database state
+20. Error states
+
+Fix all build errors.
+
+Fix all TypeScript errors.
+
+Fix all runtime errors.
+
+Fix broken links.
+
+Fix broken buttons.
+
+Make sure every page is reachable.
+
+==================================================
+29. DEPLOYMENT
+==================================================
+
+Prepare the project for production deployment.
+
+Use the platform's recommended deployment system.
+
+Make sure:
+
+• Production build works
+• Database migrations work
+• Environment variables are documented
+• OAuth redirect URLs are documented
+• Authentication works in production
+• APIs work in production
+
+Create a README explaining:
+
+• Project overview
+• Features
+• Tech stack
+• Database schema
+• DAA algorithm
+• Complexity
+• Authentication setup
+• Environment variables
+• Local development
+• Deployment
+
+==================================================
+30. IMPORTANT FINAL INSTRUCTION
+==================================================
+
+Do NOT stop after generating the UI.
+
+Build the actual working full-stack application.
+
+Start from an empty project.
+
+First establish:
+
+1. Project structure
+2. Database
+3. Authentication
+4. Backend APIs
+5. Book CRUD
+6. DAA optimization engine
+7. Dashboard
+8. Frontend UI
+9. Testing
+10. Production readiness
+
+If a feature cannot be implemented exactly as requested because of a platform limitation, use the closest secure production-ready alternative and clearly document what was changed.
+
+The final result should be a genuinely usable application that I can demonstrate as a serious 2nd-year CSE Data Structures & Algorithms project.
+
+PROJECT NAME:
+LibraSort
+
+TAGLINE:
+Smart Library Book Arrangement & Optimization System
+
+Build it from ABSOLUTE ZERO.
+NO REPLIT.
+NO OLD PROJECT.
+NO OLD CREDENTIALS.
+NO OLD DATABASE.
+NO FAKE DATA.
+REAL FULL-STACK APPLICATION.
