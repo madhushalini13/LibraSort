@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { ClerkProvider, Show, SignIn, SignUp, useClerk, useUser } from '@clerk/react';
 import { publishableKeyFromHost } from '@clerk/react/internal';
 import { shadcn } from '@clerk/themes';
@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/reac
 import {
   ArrowLeft, ArrowRight, BookOpen, ChevronLeft, ChevronRight, CircleHelp, Database, GitCompareArrows,
   GraduationCap, Grid2X2, History, Info, Layers3, Library, LockKeyhole, LogOut, Menu,
-  Pencil, Plus, Search, Settings2, ShieldCheck, Sparkles, Trash2, X,
+  Moon, Pencil, Plus, Search, Settings2, ShieldCheck, Sparkles, Sun, Trash2, X,
 } from 'lucide-react';
 import { Link, Redirect, Route, Router as WouterRouter, Switch, useLocation, useParams } from 'wouter';
 import {
@@ -23,52 +23,128 @@ const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
 const clerkPubKey = publishableKeyFromHost(window.location.hostname, import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
 const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
 
+type Theme = 'dark' | 'light';
+
+const ThemeContext = createContext<{ theme: Theme; toggleTheme: () => void }>({
+  theme: 'dark',
+  toggleTheme: () => undefined,
+});
+
+function readInitialTheme(): Theme {
+  let theme: Theme = 'dark';
+  try {
+    theme = window.localStorage.getItem('librasort-theme') === 'light' ? 'light' : 'dark';
+  } catch {
+    // Keep the dark default when storage is unavailable.
+  }
+  document.documentElement.dataset.theme = theme;
+  document.documentElement.style.colorScheme = theme;
+  return theme;
+}
+
+function ThemeProvider({ children }: { children: ReactNode }) {
+  const [theme, setTheme] = useState<Theme>(readInitialTheme);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+    try {
+      window.localStorage.setItem('librasort-theme', theme);
+    } catch {
+      // The selected theme still applies for this session.
+    }
+  }, [theme]);
+
+  const toggleTheme = () => setTheme((current) => current === 'dark' ? 'light' : 'dark');
+  return <ThemeContext.Provider value={{ theme, toggleTheme }}>{children}</ThemeContext.Provider>;
+}
+
+function useTheme() {
+  return useContext(ThemeContext);
+}
+
 function stripBase(path: string) {
   return basePath && path.startsWith(basePath) ? path.slice(basePath.length) || '/' : path;
 }
 
-const appearance = {
-  theme: shadcn,
-  cssLayerName: 'clerk',
-  options: {
-    logoPlacement: 'inside' as const,
-    logoLinkUrl: basePath || '/',
-    logoImageUrl: `${window.location.origin}${basePath}/logo.svg`,
-  },
-  variables: {
-    colorPrimary: '#42c9f3', colorForeground: '#e2edf5', colorMutedForeground: '#93a9bb',
-    colorDanger: '#e97470', colorBackground: '#0c1b2b', colorInput: '#091725',
-    colorInputForeground: '#e2edf5', colorNeutral: '#29445b', fontFamily: 'Manrope, sans-serif',
-    borderRadius: '0.65rem',
-  },
-  elements: {
-    rootBox: 'w-full flex justify-center',
-    cardBox: 'bg-[#0c1b2b] rounded-2xl w-[440px] max-w-full overflow-hidden border border-[#29445b]',
-    card: '!shadow-none !border-0 !bg-transparent !rounded-none',
-    footer: '!shadow-none !border-0 !bg-transparent !rounded-none',
-    headerTitle: 'text-[#e2edf5] font-semibold tracking-tight',
-    headerSubtitle: 'text-[#93a9bb]',
-    socialButtonsBlockButtonText: 'text-[#d8e5ee] font-semibold',
-    formFieldLabel: 'text-[#b8c9d6]',
-    footerActionLink: 'text-[#55d1f2] font-semibold',
-    footerActionText: 'text-[#93a9bb]',
-    dividerText: 'text-[#8197aa]',
-    identityPreviewEditButton: 'text-[#55d1f2]',
-    formFieldSuccessText: 'text-[#70d5b1]',
-    alertText: 'text-[#ffc0ba]',
-    logoBox: 'mb-2',
-    logoImage: 'rounded-md',
-    socialButtonsBlockButton: 'bg-[#12263a] border border-[#29445b] hover:bg-[#173248]',
-    formButtonPrimary: 'bg-[#42c9f3] text-[#06202b] hover:bg-[#75dcf9]',
-    formFieldInput: 'bg-[#091725] border-[#29445b] text-[#e2edf5]',
-    footerAction: 'border-t border-[#29445b]',
-    dividerLine: 'bg-[#29445b]',
-    alert: 'bg-[#542a32] border-[#87434a]',
-    otpCodeFieldInput: 'bg-[#091725] border-[#29445b] text-[#e2edf5]',
-    formFieldRow: 'mb-4',
-    main: 'gap-4',
-  },
-};
+function clerkAppearance(theme: Theme) {
+  const light = theme === 'light';
+  return {
+    theme: shadcn,
+    cssLayerName: 'clerk',
+    options: {
+      logoPlacement: 'inside' as const,
+      logoLinkUrl: basePath || '/',
+      logoImageUrl: `${window.location.origin}${basePath}/logo.svg`,
+    },
+    variables: {
+      colorPrimary: light ? '#087f9f' : '#42c9f3',
+      colorForeground: light ? '#17263b' : '#e2edf5',
+      colorMutedForeground: light ? '#5d7085' : '#93a9bb',
+      colorDanger: light ? '#bd3f40' : '#e97470',
+      colorBackground: light ? '#ffffff' : '#0c1b2b',
+      colorInput: light ? '#ffffff' : '#091725',
+      colorInputForeground: light ? '#17263b' : '#e2edf5',
+      colorNeutral: light ? '#d3deea' : '#29445b',
+      fontFamily: 'Manrope, sans-serif',
+      borderRadius: '0.65rem',
+    },
+    elements: {
+      rootBox: 'w-full flex justify-center',
+      cardBox: `rounded-2xl w-[440px] max-w-full overflow-hidden border ${light ? 'bg-white border-[#d6e0eb]' : 'bg-[#0c1b2b] border-[#29445b]'}`,
+      card: '!shadow-none !border-0 !bg-transparent !rounded-none',
+      footer: '!shadow-none !border-0 !bg-transparent !rounded-none',
+      headerTitle: `font-semibold tracking-tight ${light ? 'text-[#17263b]' : 'text-[#e2edf5]'}`,
+      headerSubtitle: light ? 'text-[#5d7085]' : 'text-[#93a9bb]',
+      socialButtonsBlockButtonText: `font-semibold ${light ? 'text-[#263b52]' : 'text-[#d8e5ee]'}`,
+      formFieldLabel: light ? 'text-[#41566e]' : 'text-[#b8c9d6]',
+      footerActionLink: light ? 'text-[#087f9f] font-semibold' : 'text-[#55d1f2] font-semibold',
+      footerActionText: light ? 'text-[#5d7085]' : 'text-[#93a9bb]',
+      dividerText: light ? 'text-[#697d92]' : 'text-[#8197aa]',
+      identityPreviewEditButton: light ? 'text-[#087f9f]' : 'text-[#55d1f2]',
+      formFieldSuccessText: light ? 'text-[#17734f]' : 'text-[#70d5b1]',
+      alertText: light ? 'text-[#9e3035]' : 'text-[#ffc0ba]',
+      logoBox: 'mb-2',
+      logoImage: 'rounded-md',
+      socialButtonsBlockButton: light
+        ? 'bg-[#f5f8fc] border border-[#d6e0eb] hover:bg-[#edf3f8]'
+        : 'bg-[#12263a] border border-[#29445b] hover:bg-[#173248]',
+      formButtonPrimary: `text-[#06202b] ${light ? 'bg-[#45c2e3] hover:bg-[#69d0eb]' : 'bg-[#42c9f3] hover:bg-[#75dcf9]'}`,
+      formFieldInput: light
+        ? 'bg-white border-[#d6e0eb] text-[#17263b]'
+        : 'bg-[#091725] border-[#29445b] text-[#e2edf5]',
+      footerAction: `border-t ${light ? 'border-[#dce4ed]' : 'border-[#29445b]'}`,
+      dividerLine: light ? 'bg-[#d6e0eb]' : 'bg-[#29445b]',
+      alert: light ? 'bg-[#fff0ef] border-[#edc2c0]' : 'bg-[#542a32] border-[#87434a]',
+      otpCodeFieldInput: light
+        ? 'bg-white border-[#d6e0eb] text-[#17263b]'
+        : 'bg-[#091725] border-[#29445b] text-[#e2edf5]',
+      formFieldRow: 'mb-4',
+      main: 'gap-4',
+    },
+  };
+}
+
+function ThemeToggle() {
+  const { theme, toggleTheme } = useTheme();
+  const nextTheme = theme === 'dark' ? 'light' : 'dark';
+  const Icon = theme === 'dark' ? Sun : Moon;
+
+  return (
+    <button
+      type="button"
+      className="theme-toggle"
+      onClick={toggleTheme}
+      aria-label={`Switch to ${nextTheme} mode`}
+      aria-pressed={theme === 'light'}
+      title={`Switch to ${nextTheme} mode`}
+      data-testid="button-theme-toggle"
+    >
+      <Icon size={15} aria-hidden="true" />
+      <span>{nextTheme} mode</span>
+    </button>
+  );
+}
 
 function Brand({ light = false }: { light?: boolean }) {
   return <span className={`brand${light ? ' brand-light' : ''}`}><span className="brand-mark"><BookOpen size={17} /></span><span>LibraSort</span></span>;
@@ -99,17 +175,17 @@ function ClerkCacheInvalidator() {
 }
 
 function SignInPage() {
-  return <div className="app-frame auth-frame"><div className="auth-brand"><Link href="/"><Brand /></Link><span className="secure-tag"><LockKeyhole size={13} /> PRIVATE BY DESIGN</span></div><div className="auth-wrap"><div className="auth-aside"><span className="small-caps">Your reading, in order</span><h1>A clearer view of your library.</h1><p>Keep your personal collection close, and make the structure behind it visible.</p></div><SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} /></div></div>;
+  return <div className="app-frame auth-frame"><div className="auth-brand"><Link href="/"><Brand /></Link><div className="auth-controls"><ThemeToggle /><span className="secure-tag"><LockKeyhole size={13} /> PRIVATE BY DESIGN</span></div></div><div className="auth-wrap"><div className="auth-aside"><span className="small-caps">Your reading, in order</span><h1>A clearer view of your library.</h1><p>Keep your personal collection close, and make the structure behind it visible.</p></div><SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} /></div></div>;
 }
 
 function SignUpPage() {
-  return <div className="app-frame auth-frame"><div className="auth-brand"><Link href="/"><Brand /></Link><span className="secure-tag"><LockKeyhole size={13} /> PRIVATE BY DESIGN</span></div><div className="auth-wrap"><div className="auth-aside"><span className="small-caps">Start with your own records</span><h1>Build a library that thinks with you.</h1><p>Every book and every arrangement belongs to your account alone.</p></div><SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} /></div></div>;
+  return <div className="app-frame auth-frame"><div className="auth-brand"><Link href="/"><Brand /></Link><div className="auth-controls"><ThemeToggle /><span className="secure-tag"><LockKeyhole size={13} /> PRIVATE BY DESIGN</span></div></div><div className="auth-wrap"><div className="auth-aside"><span className="small-caps">Start with your own records</span><h1>Build a library that thinks with you.</h1><p>Every book and every arrangement belongs to your account alone.</p></div><SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} /></div></div>;
 }
 
 function LandingPage() {
   const health = useHealthCheck();
   return <main className="app-frame landing">
-    <header className="site-header"><Link href="/" aria-label="LibraSort home"><Brand /></Link><nav className="public-nav"><Link href="/about" className="nav-about">The method</Link><Link href="/sign-in" data-testid="link-sign-in">Sign in</Link><Link href="/sign-up" className="button button-primary" data-testid="link-get-started">Create account <ArrowRight size={14} /></Link></nav></header>
+      <header className="site-header"><Link href="/" aria-label="LibraSort home"><Brand /></Link><nav className="public-nav"><ThemeToggle /><Link href="/about" className="nav-about">The method</Link><Link href="/sign-in" data-testid="link-sign-in">Sign in</Link><Link href="/sign-up" className="button button-primary" data-testid="link-get-started">Create account <ArrowRight size={14} /></Link></nav></header>
     <section className="hero">
       <div><div className="eyebrow">Personal library · Algorithmic order</div><h1>Your books.<br />A better <em>arrangement.</em></h1><p className="hero-copy">A private place for your collection, with a real sorting engine that turns data structures and algorithms into a library you can understand.</p><div className="hero-actions"><Link href="/sign-up" className="button button-primary" data-testid="link-start-library">Start your library <ArrowRight size={15} /></Link><Link href="/about" className="button button-secondary" data-testid="link-explore-method">Explore the method</Link></div><div className="hero-foot">{health.isLoading ? 'CHECKING SERVICE STATUS' : health.isError ? 'SERVICE STATUS UNAVAILABLE' : `SERVICE ${health.data?.status?.toUpperCase() ?? 'READY'} · YOUR DATA STAYS YOURS`}</div></div>
       <div className="hero-visual" aria-label="Abstract library shelf illustration"><div className="orbit" /><div className="visual-tag tag-top">OPTIMIZATION<strong>Deterministic DAA</strong></div><div className="visual-tag tag-bottom">YOUR COLLECTION<strong>One account. One library.</strong></div><div className="shelf-art"><div className="book-row"><span className="book-spine spine-a" /><span className="book-spine spine-b" /><span className="book-spine spine-c" /><span className="book-spine spine-d" /><span className="book-spine spine-e" /></div><div className="shelf-board" /><div className="shelf-caption"><span>Collection structure</span><span>01 / your own</span></div></div></div>
@@ -143,7 +219,7 @@ function AppShell({ children }: { children: ReactNode }) {
   const nav = <>{navItems.map(({ href, label, icon: Icon }) => <Link key={href} href={href} className={location === href || (href === '/library' && location.startsWith('/library/')) || (href === '/optimization/history' && location.startsWith('/optimization/history/')) ? 'active' : ''} onClick={() => setMenuOpen(false)}><Icon size={16} />{label}</Link>)}</>;
   return <div className="workspace">
     <aside className="sidebar"><Link href="/dashboard"><Brand /></Link><div className="side-label">Workspace</div><nav className="side-nav">{nav}</nav><div className="sidebar-bottom"><div className="sidebar-note"><b>Algorithms, made tangible</b><span>See your own collection become a working example of data organization.</span></div><div className="profile-mini"><div className="avatar">{initials}</div><div><b>{name}</b><small>Personal account</small></div></div></div></aside>
-    <div className="workspace-main"><header className="topbar"><button className="icon-button mobile-menu" aria-label="Toggle navigation" onClick={() => setMenuOpen(!menuOpen)} data-testid="button-mobile-menu"><Menu size={17} /></button><div className="crumb">LIBRASORT <span style={{ color: '#435a70' }}>/</span> PRIVATE WORKSPACE</div><div className="topbar-right"><span className="secure-tag"><span className="live-dot" /> YOUR SESSION IS PRIVATE</span></div></header>{menuOpen && <nav className="mobile-nav">{nav}</nav>}{children}</div>
+     <div className="workspace-main"><header className="topbar"><button className="icon-button mobile-menu" aria-label="Toggle navigation" onClick={() => setMenuOpen(!menuOpen)} data-testid="button-mobile-menu"><Menu size={17} /></button><div className="crumb">LIBRASORT <span style={{ color: 'hsl(var(--muted-foreground))' }}>/</span> PRIVATE WORKSPACE</div><div className="topbar-right"><ThemeToggle /><span className="secure-tag"><span className="live-dot" /> YOUR SESSION IS PRIVATE</span></div></header>{menuOpen && <nav className="mobile-nav">{nav}</nav>}{children}</div>
   </div>;
 }
 
@@ -340,7 +416,7 @@ function HomeRedirect() {
 }
 
 function AboutRoute() {
-  return <><Show when="signed-in"><AppShell><AboutPage /></AppShell></Show><Show when="signed-out"><main className="app-frame"><header className="site-header"><Link href="/"><Brand /></Link><nav className="public-nav"><Link href="/">Home</Link><Link href="/sign-in">Sign in</Link><Link href="/sign-up" className="button button-primary">Create account <ArrowRight size={14} /></Link></nav></header><AboutPage /><footer className="public-footer"><Link href="/"><Brand /></Link><span>Secure personal library · DAA exploration</span></footer></main></Show></>;
+  return <><Show when="signed-in"><AppShell><AboutPage /></AppShell></Show><Show when="signed-out"><main className="app-frame"><header className="site-header"><Link href="/"><Brand /></Link><nav className="public-nav"><ThemeToggle /><Link href="/">Home</Link><Link href="/sign-in">Sign in</Link><Link href="/sign-up" className="button button-primary">Create account <ArrowRight size={14} /></Link></nav></header><AboutPage /><footer className="public-footer"><Link href="/"><Brand /></Link><span>Secure personal library · DAA exploration</span></footer></main></Show></>;
 }
 
 function Router() {
@@ -362,7 +438,8 @@ function Router() {
 
 function ClerkRoutes() {
   const [, setLocation] = useLocation();
-  return <ClerkProvider publishableKey={clerkPubKey} proxyUrl={clerkProxyUrl} appearance={appearance} signInUrl={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`}
+  const { theme } = useTheme();
+  return <ClerkProvider publishableKey={clerkPubKey} proxyUrl={clerkProxyUrl} appearance={clerkAppearance(theme)} signInUrl={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`}
     localization={{ signIn: { start: { title: 'Welcome back', subtitle: 'Sign in to access your library.' } }, signUp: { start: { title: 'Create your private library', subtitle: 'Start with your own books and records.' } } }}
     routerPush={(to) => setLocation(stripBase(to))} routerReplace={(to) => setLocation(stripBase(to), { replace: true })}>
     <QueryClientProvider client={queryClient}><ClerkCacheInvalidator /><Router /></QueryClientProvider>
@@ -371,7 +448,7 @@ function ClerkRoutes() {
 
 function App() {
   if (!clerkPubKey) throw new Error('Missing VITE_CLERK_PUBLISHABLE_KEY in environment.');
-  return <WouterRouter base={basePath}><ClerkRoutes /></WouterRouter>;
+  return <ThemeProvider><WouterRouter base={basePath}><ClerkRoutes /></WouterRouter></ThemeProvider>;
 }
 
 export default App;
