@@ -1,0 +1,1 @@
+- [LibraSort constraints](librasort-scope.md) — Preserve the user's no-reuse, no-fabricated-data, and platform/auth constraints.
